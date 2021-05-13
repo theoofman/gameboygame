@@ -22,7 +22,13 @@ void performantdelay(UINT8 numloops){
         wait_vbl_done();
     }     
 }
-
+void playsound(int a, int b, int c, int d, int e){
+    NR10_REG = a;
+    NR11_REG = b;
+    NR12_REG = c;
+    NR13_REG = d;
+    NR14_REG = e;
+}
 UBYTE canplayermove(UINT8 newplayerx, UINT8 newplayery){
     UINT16 indexTLx, indexTLy, tileindexTL;
     UBYTE result;
@@ -46,21 +52,25 @@ UBYTE canplayermove(UINT8 newplayerx, UINT8 newplayery){
     if(tileindexTL==keypos1 && currentmap == 0){
         // collect key
         set_bkg_tiles(1,16,1,1,blankmap);
+        playsound(0x16,0x40,0x73,0x00,0xC3);
         haskey = 1;
         result = 1;
     }
     else if(tileindexTL==keypos2 && currentmap == 1){
         set_bkg_tiles(1,11,1,1,blankmap);
+        playsound(0x16,0x40,0x73,0x00,0xC3);
         haskey = 1;
         result = 1;
     }
     else if(tileindexTL==doorpos1 && haskey && currentmap == 0){
         // open door
         set_bkg_tiles(3,13,1,1,blankmap);
+        playsound(0x78,0xC1,0x4B,0x73,0x86);
         result = 1;
     }
     else if(tileindexTL==doorpos2 && haskey && currentmap == 1){
         set_bkg_tiles(4,14,1,1,blankmap);
+        playsound(0x78,0xC1,0x4B,0x73,0x86);
         result = 1;
     }
     else if(tileindexTL==340){
@@ -92,7 +102,8 @@ void animatesprite(UINT8 spriteindex, INT8 movex, INT8 movey){
         scroll_sprite(spriteindex, 0, movey < 0 ? -1 : 1);
         movey += movey < 0 ? 1 : -1;
         wait_vbl_done();
-    }    
+    } 
+    playsound(0x70,0x40,0x53,0x72,0x86);
 }
 void fadeout(){
     for(i = 0; i < 4; i++){
@@ -137,6 +148,9 @@ void animatebackground(){
 }
 
 void main(){
+    NR52_REG = 0x80;
+    NR50_REG = 0x77;
+    NR51_REG = 0xFF;
     set_bkg_data(0,114,logo_data);
     set_bkg_tiles(0,0,20,18,logo_map);
 
