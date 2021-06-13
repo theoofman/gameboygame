@@ -3,6 +3,8 @@
 #include "mazesprites.c"
 #include "mazemap1.c"
 #include "mazemap2.c"
+#include "mazemap3.c"
+#include "mazemap4.c"
 #include "Snail.c"
 #include "logo_data.c"
 #include "logo_map.c"
@@ -45,10 +47,17 @@ UBYTE canplayermove(UINT8 newplayerx, UINT8 newplayery){
         else if(currentmap==1)
             printf("%u\n",(UINT16)MazeMap2[tileindexTL]);
     }    
-    if(currentmap==0)
+    if(debug){
+        result = 1;
+    }
+    else if(currentmap==0)
         result = MazeMap1[tileindexTL] == blankmap[0];
     else if(currentmap==1)
         result = MazeMap2[tileindexTL] == blankmap[0];
+    else if(currentmap==2)
+        result = MazeMap3[tileindexTL] == blankmap[0];
+    else if(currentmap==3)
+        result = MazeMap4[tileindexTL] == blankmap[0];
     if(tileindexTL==keypos1 && currentmap == 0){
         // collect key
         set_bkg_tiles(1,16,1,1,blankmap);
@@ -58,6 +67,18 @@ UBYTE canplayermove(UINT8 newplayerx, UINT8 newplayery){
     }
     else if(tileindexTL==keypos2 && currentmap == 1){
         set_bkg_tiles(1,11,1,1,blankmap);
+        playsound(0x16,0x40,0x73,0x00,0xC3);
+        haskey = 1;
+        result = 1;
+    }
+    else if(tileindexTL==keypos3 && currentmap == 2){
+        set_bkg_tiles(17,4,1,1,blankmap);
+        playsound(0x16,0x40,0x73,0x00,0xC3);
+        haskey = 1;
+        result = 1;
+    }
+    else if(tileindexTL==keypos4 && currentmap == 3){
+        set_bkg_tiles(13,14,1,1,blankmap);
         playsound(0x16,0x40,0x73,0x00,0xC3);
         haskey = 1;
         result = 1;
@@ -73,6 +94,16 @@ UBYTE canplayermove(UINT8 newplayerx, UINT8 newplayery){
         playsound(0x78,0xC1,0x4B,0x73,0x86);
         result = 1;
     }
+    else if(tileindexTL==doorpos3 && haskey && currentmap == 2){
+        set_bkg_tiles(7,14,1,1,blankmap);
+        playsound(0x78,0xc1,0x4B,0x73,0x86);
+        result = 1;
+    }
+    else if(tileindexTL==doorpos4 && haskey && currentmap == 3){
+        set_bkg_tiles(19,16,1,1,blankmap);
+        playsound(0x78,0xc1,0x4B,0x73,0x86);
+        result = 1;
+    }
     else if(tileindexTL==340){
         // finish game
         if(currentmap==0){
@@ -82,8 +113,17 @@ UBYTE canplayermove(UINT8 newplayerx, UINT8 newplayery){
         }
         else if(currentmap==1){
             HIDE_SPRITES;
-            printf("Game Over");
-            gamerunning=0;
+            currentmap = 2;
+            result = 1;
+        }
+        else if(currentmap==2){
+            HIDE_SPRITES;
+            currentmap = 3;
+            result = 1;
+        }
+        else if(currentmap==3){
+            HIDE_SPRITES;
+            printf("      You Win!    ");
             result = 1;
         }
              
@@ -183,26 +223,61 @@ void main(){
 
     while(gamerunning){
         if(currentmapprev != currentmap){
-            fadeout();
-            haskey = 0;
-            set_bkg_data(0,4,mazesprites);
-            set_bkg_tiles(0,0,20,18,MazeMap2);
-            set_sprite_data(0,1, Snail);
-            set_sprite_tile(0,0);
-            fadein();
-            playerlocation[0] = 16;
-            playerlocation[1] = 24;
-            move_sprite(0,playerlocation[0],playerlocation[1]);
-            SHOW_SPRITES;
-            SHOW_BKG;
-            DISPLAY_ON;
-            currentmapprev = 1;
+            if(currentmap == 1)
+            {
+                fadeout();
+                haskey = 0;
+                set_bkg_data(0,4,mazesprites);
+                set_bkg_tiles(0,0,20,18,MazeMap2);
+                set_sprite_data(0,1, Snail);
+                set_sprite_tile(0,0);
+                fadein();
+                playerlocation[0] = 16;
+                playerlocation[1] = 24;
+                move_sprite(0,playerlocation[0],playerlocation[1]);
+                SHOW_SPRITES;
+                SHOW_BKG;
+                DISPLAY_ON;
+                currentmapprev = 1;
+            }
+            else if(currentmap == 2){
+                fadeout();
+                haskey = 0;
+                set_bkg_data(0,4,mazesprites);
+                set_bkg_tiles(0,0,20,18,MazeMap3);
+                set_sprite_data(0,1, Snail);
+                set_sprite_tile(0,0);
+                fadein();
+                playerlocation[0] = 16;
+                playerlocation[1] = 24;
+                move_sprite(0,playerlocation[0],playerlocation[1]);
+                SHOW_SPRITES;
+                SHOW_BKG;
+                DISPLAY_ON;
+                currentmapprev = 2;
+            }
+            else if(currentmap == 3){
+                fadeout();
+                haskey = 0;
+                set_bkg_data(0,4,mazesprites);
+                set_bkg_tiles(0,0,20,18,MazeMap4);
+                set_sprite_data(0,1,Snail);
+                set_sprite_tile(0,0);
+                fadein();
+                playerlocation[0] = 16;
+                playerlocation[1] = 24;
+                move_sprite(0,playerlocation[0],playerlocation[1]);
+                SHOW_SPRITES;
+                SHOW_BKG;
+                DISPLAY_ON;
+                currentmapprev = 3;
+            }
         }      
         if(joypad() & J_A){
             debug = 1;
         }
         if(joypad() & J_B){
-            currentmap = 1;
+            currentmap += 1;
         }
         if(joypad() & J_LEFT){
             if(canplayermove(playerlocation[0]-8,playerlocation[1])){
